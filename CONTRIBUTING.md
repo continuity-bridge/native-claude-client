@@ -81,6 +81,8 @@ Once the codebase exists, here's how to contribute code:
 - Open a Discussion in the Design Decisions category
 - These affect everything, need broader input
 
+---
+
 ### Development Setup
 
 See [Wiki: Development Setup](https://github.com/continuity-bridge/claude-devel-client/wiki/Development-Setup) for environment configuration (coming soon).
@@ -90,15 +92,56 @@ See [Wiki: Development Setup](https://github.com/continuity-bridge/claude-devel-
 - GTK4 / PyGObject
 - Linux (Wayland preferred)
 
+---
+
 ### Code Style
 
-We follow:
-- [PEP 8](https://pep8.org/) for Python
-- [GNOME HIG](https://developer.gnome.org/hig/) for UI/UX
-- Docstrings for all public functions
-- Type hints where helpful
+We follow the project's code style guide.
 
-Detailed style guide coming after v0.1.
+Core principle: Code should be readable at a glance, self-documenting, and minimally complex.
+
+Key conventions:
+
+- Python: snake_case functions, PascalCase classes, type hints encouraged
+- Comments: Explain WHY, not HOW (code shows how)
+- Errors: Use specific exceptions, not bare except:
+- Paths: Use pathlib for cross-platform compatibility
+- Attribution:
+  - @{model-name} (ie, @Claude or chosen name) for AI-generated,
+  - @{github-user} (ie, @UncleTallest) for human-written code
+- GTK4: Descriptive widget names, clear signal handler names
+
+Quick example:
+```python
+def load_session(session_id: str) -> dict:
+    """
+    Load session data from storage.
+    
+    Args:
+        session_id: Unique session identifier
+        
+    Returns:
+        Session data dictionary
+        
+    Raises:
+        FileNotFoundError: If session file doesn't exist
+    """
+    # Use pathlib for cross-platform paths
+    session_file = Path.home() / '.config' / 'claude-devel-client' / f'{session_id}.json'
+    
+    try:
+        with open(session_file) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.error(f"Session not found: {session_id}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid session data: {e}")
+        raise
+```
+See docs/code-style.md in this repository for complete guidelines.
+
+---
 
 ### Pull Request Process
 
