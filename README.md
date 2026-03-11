@@ -85,7 +85,8 @@ We're in the planning phase - perfect time to shape the project!
 When v0.1 is ready:
 ```bash
 # Requirements: Python 3.11+, GTK4, Wayland
-pip install native-claude-clientnative-claude-client```
+pip install native-claude-clientnative-claude-client
+```
 
 For development setup, see [Wiki: Development Setup](https://github.com/continuity-bridge/native-claude-client/wiki/Development-Setup).
 
@@ -126,4 +127,4 @@ This project is part of the [continuity-bridge](https://github.com/continuity-br
 
 ---
 
-**Built by [Jerry Jackson](https://github.com/JerryJack121) (Uncle Tallest)**
+**Built by [Jerry Jackson](https://github.com/UncleTallest) (Uncle Tallest)**
