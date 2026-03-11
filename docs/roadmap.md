@@ -1,6 +1,6 @@
 # Roadmap
 
-See [Wiki: Roadmap](https://github.com/continuity-bridge/claude-devel-client/wiki/Roadmap) for the full roadmap.
+See [Wiki: Roadmap](https://github.com/continuity-bridge/native-claude-client/wiki/Roadmap) for the full roadmap.
 
 This file will be updated as major milestones are reached.
 
