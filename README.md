@@ -1,5 +1,4 @@
-# claude-devel-client
-
+# native-claude-client
 **Native GTK4 client for Claude with agentic development workflows**
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
@@ -31,7 +30,7 @@ Claude Desktop is great, but developers need more:
 - **Usage anxiety** - No clear visibility into limit consumption
 - **Not truly native** - Electron app with XWayland issues on Wayland
 
-claude-devel-client solves these developer-specific problems.
+native-claude-client solves these developer-specific problems.
 
 ---
 
@@ -59,7 +58,7 @@ claude-devel-client solves these developer-specific problems.
 - Plugin architecture
 - Complete documentation
 
-See [Roadmap](https://github.com/continuity-bridge/claude-devel-client/wiki/Roadmap) for detailed timeline.
+See [Roadmap](https://github.com/continuity-bridge/native-claude-client/wiki/Roadmap) for detailed timeline.
 
 ---
 
@@ -68,11 +67,11 @@ See [Roadmap](https://github.com/continuity-bridge/claude-devel-client/wiki/Road
 We're in the planning phase - perfect time to shape the project!
 
 **Active Discussions:**
-- [Window Layout: Tabs vs Panes vs Hybrid?](https://github.com/continuity-bridge/claude-devel-client/discussions/1)
-- [What features would make this useful for your workflow?](https://github.com/continuity-bridge/claude-devel-client/discussions/2)
+- [Window Layout: Tabs vs Panes vs Hybrid?](https://github.com/continuity-bridge/native-claude-client/discussions/1)
+- [What features would make this useful for your workflow?](https://github.com/continuity-bridge/native-claude-client/discussions/2)
 
 **Ways to contribute:**
-- Share your workflow pain points in [Discussions](https://github.com/continuity-bridge/claude-devel-client/discussions)
+- Share your workflow pain points in [Discussions](https://github.com/continuity-bridge/native-claude-client/discussions)
 - Vote on design decisions
 - Test on your distro when v0.1 releases
 - Contribute code (after MVP - see [CONTRIBUTING.md](CONTRIBUTING.md))
@@ -86,11 +85,9 @@ We're in the planning phase - perfect time to shape the project!
 When v0.1 is ready:
 ```bash
 # Requirements: Python 3.11+, GTK4, Wayland
-pip install claude-devel-client
-claude-devel-client
-```
+pip install native-claude-clientnative-claude-client```
 
-For development setup, see [Wiki: Development Setup](https://github.com/continuity-bridge/claude-devel-client/wiki/Development-Setup).
+For development setup, see [Wiki: Development Setup](https://github.com/continuity-bridge/native-claude-client/wiki/Development-Setup).
 
 ---
 
@@ -105,15 +102,15 @@ For development setup, see [Wiki: Development Setup](https://github.com/continui
 - Companies building proprietary products: Contact for commercial licensing
 - All code stays open source regardless
 
-See [Wiki: Design Decisions](https://github.com/continuity-bridge/claude-devel-client/wiki/Design-Decisions#license-dual-licensing-gpl-30--commercial) for details on dual licensing.
+See [Wiki: Design Decisions](https://github.com/continuity-bridge/native-claude-client/wiki/Design-Decisions#license-dual-licensing-gpl-30--commercial) for details on dual licensing.
 
 ---
 
 ## Project Links
 
-- **Roadmap:** [Wiki: Roadmap](https://github.com/continuity-bridge/claude-devel-client/wiki/Roadmap)
-- **Design Decisions:** [Wiki: Design Decisions](https://github.com/continuity-bridge/claude-devel-client/wiki/Design-Decisions)
-- **Discussions:** [Community Forum](https://github.com/continuity-bridge/claude-devel-client/discussions)
+- **Roadmap:** [Wiki: Roadmap](https://github.com/continuity-bridge/native-claude-client/wiki/Roadmap)
+- **Design Decisions:** [Wiki: Design Decisions](https://github.com/continuity-bridge/native-claude-client/wiki/Design-Decisions)
+- **Discussions:** [Community Forum](https://github.com/continuity-bridge/native-claude-client/discussions)
 - **Project Board:** [Development Progress](https://github.com/orgs/continuity-bridge/projects/2)
 
 ---
