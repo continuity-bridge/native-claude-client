@@ -1,4 +1,4 @@
-# Commercial License for claude-devel-client
+# Commercial License for native-claude-client
 
 **Last Updated:** March 9, 2026
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-claude-devel-client is dual-licensed:
+native-claude-client is dual-licensed:
 
 - **Open Source:** Available under GPL-3.0 for individuals, open source projects, and GPL-compatible use
 - **Commercial:** Available under a proprietary license for organizations that cannot or prefer not to use GPL-3.0
@@ -19,8 +19,8 @@ This document describes the commercial licensing option.
 
 The GNU General Public License v3.0 (GPL-3.0) is a "copyleft" license that requires:
 
-1. **Derivative works must also be GPL-3.0** - If you modify claude-devel-client and distribute your changes, you must open source those changes under GPL-3.0
-2. **Combined works must be GPL-3.0** - If you integrate claude-devel-client into a larger application, the entire application must be GPL-3.0
+1. **Derivative works must also be GPL-3.0** - If you modify native-claude-client and distribute your changes, you must open source those changes under GPL-3.0
+2. **Combined works must be GPL-3.0** - If you integrate native-claude-client into a larger application, the entire application must be GPL-3.0
 3. **Source code must be made available** - Users of your software must have access to the complete source code
 
 **For many organizations, this is incompatible with proprietary software development.**
@@ -31,16 +31,16 @@ The GNU General Public License v3.0 (GPL-3.0) is a "copyleft" license that requi
 
 You need a commercial license if:
 
-- ✅ You're building a **proprietary product** that integrates claude-devel-client
-- ✅ You're creating a **closed-source tool** for internal use that includes claude-devel-client
-- ✅ You want to **modify claude-devel-client** without releasing your changes as open source
+- ✅ You're building a **proprietary product** that integrates native-claude-client
+- ✅ You're creating a **closed-source tool** for internal use that includes native-claude-client
+- ✅ You want to **modify native-claude-client** without releasing your changes as open source
 - ✅ Your organization's **legal policy prohibits GPL-licensed dependencies**
-- ✅ You're offering a **SaaS or hosted service** that incorporates claude-devel-client
-- ✅ You want to **resell or redistribute** claude-devel-client as part of a commercial offering
+- ✅ You're offering a **SaaS or hosted service** that incorporates native-claude-client
+- ✅ You want to **resell or redistribute** native-claude-client as part of a commercial offering
 
 You **do NOT need a commercial license** if:
 
-- ❌ You're using claude-devel-client for personal use
+- ❌ You're using native-claude-client for personal use
 - ❌ You're contributing to open source projects (GPL-compatible)
 - ❌ You're building an internal tool and are comfortable open-sourcing it
 - ❌ Your organization can comply with GPL-3.0 requirements
@@ -52,9 +52,9 @@ You **do NOT need a commercial license** if:
 A commercial license grants you:
 
 1. **Freedom from GPL copyleft** - No requirement to open source your derivative works or combined applications
-2. **Proprietary use rights** - Build closed-source products incorporating claude-devel-client
+2. **Proprietary use rights** - Build closed-source products incorporating native-claude-client
 3. **Modification rights** - Modify the code without sharing changes publicly
-4. **Redistribution rights** - Include claude-devel-client in commercial products or services
+4. **Redistribution rights** - Include native-claude-client in commercial products or services
 5. **Patent protection** - Same patent grant as GPL-3.0, protecting you from patent claims
 6. **Support and updates** - Access to priority support and commercial release branches (optional tier)
 
@@ -66,7 +66,7 @@ A commercial license grants you:
 
 **$500 USD per year**
 
-- **Use:** One developer working with claude-devel-client
+- **Use:** One developer working with native-claude-client
 - **Products:** Unlimited proprietary products or services
 - **Support:** Email support (best-effort, 3-5 business day response)
 - **Updates:** Access to all releases during license period
@@ -75,7 +75,7 @@ A commercial license grants you:
 
 **$2,000 USD per year**
 
-- **Use:** Up to 5 developers working with claude-devel-client
+- **Use:** Up to 5 developers working with native-claude-client
 - **Products:** Unlimited proprietary products or services
 - **Support:** Email support (priority, 1-2 business day response)
 - **Updates:** Access to all releases during license period
@@ -108,7 +108,7 @@ For organizations with specific needs:
 ## How to Purchase
 
 1. **Email:** [tallest@ohmytallest.productions](mailto:tallest@ohmytallest.productions)
-2. **Subject:** "Commercial License Request - claude-devel-client"
+2. **Subject:** "Commercial License Request - native-claude-client"
 3. **Include:**
    - Organization name
    - Number of developers
@@ -130,7 +130,7 @@ You will receive:
 
 Upon payment, you receive a non-exclusive, worldwide, royalty-free license to:
 
-- Use claude-devel-client in proprietary applications
+- Use native-claude-client in proprietary applications
 - Modify the source code for your purposes
 - Distribute modified or unmodified versions as part of your products
 - Create derivative works without GPL obligations
@@ -139,9 +139,9 @@ Upon payment, you receive a non-exclusive, worldwide, royalty-free license to:
 
 You may NOT:
 
-- Relicense claude-devel-client under a different license
+- Relicense native-claude-client under a different license
 - Remove copyright notices or attribution
-- Use the claude-devel-client name or trademarks without permission
+- Use the native-claude-client name or trademarks without permission
 - Hold the author liable for damages (software provided "AS IS")
 
 ### Term and Renewal
@@ -218,10 +218,10 @@ Commercial licensing supports development of features that benefit everyone.
 Email: [tallest@ohmytallest.productions](mailto:tallest@ohmytallest.productions)
 
 **Questions about the open source version:**  
-Use [GitHub Discussions](https://github.com/continuity-bridge/claude-devel-client/discussions)
+Use [GitHub Discussions](https://github.com/continuity-bridge/native-claude-client/discussions)
 
 **Bug reports and feature requests:**  
-Use [GitHub Issues](https://github.com/continuity-bridge/claude-devel-client/issues)
+Use [GitHub Issues](https://github.com/continuity-bridge/native-claude-client/issues)
 
 ---
 
@@ -240,4 +240,4 @@ The software is provided "AS IS" without warranty of any kind. The author is not
 **Version:** 1.0  
 **Effective:** March 9, 2026  
 **Author:** Jerry Jackson  
-**Repository:** https://github.com/continuity-bridge/claude-devel-client
+**Repository:** https://github.com/continuity-bridge/native-claude-client

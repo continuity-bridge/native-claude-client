@@ -1,6 +1,6 @@
 # Code Style Guide
 
-**For claude-devel-client development**
+**For native-claude-client development**
 
 This guide distills core coding principles for this project. Comprehensive style guides for all continuity-bridge projects will be published to the public repository.
 
@@ -148,7 +148,7 @@ The code shows HOW. Comments provide context and reasoning.
 ```python
 #!/usr/bin/env python3
 """
-Session management for claude-devel-client
+Session management for native-claude-client
 
 Author: Vector (AI-generated)
 Created: 2026-03-09
@@ -291,11 +291,11 @@ Each helper has single, clear responsibility.
 from pathlib import Path
 
 # Good - cross-platform
-config_dir = Path.home() / '.config' / 'claude-devel-client'
+config_dir = Path.home() / '.config' / 'native-claude-client'
 session_file = config_dir / 'sessions' / f'{session_id}.json'
 
 # Bad - platform-specific
-config_dir = "/home/user/.config/claude-devel-client"  # Linux only
+config_dir = "/home/user/.config/native-claude-client"  # Linux only
 ```
 
 ---
@@ -335,4 +335,4 @@ Before committing:
 
 ---
 
-*This guide distills core principles for claude-devel-client. Comprehensive style guides covering all continuity-bridge projects will be published to the public repository.*
+*This guide distills core principles for native-claude-client. Comprehensive style guides covering all continuity-bridge projects will be published to the public repository.*

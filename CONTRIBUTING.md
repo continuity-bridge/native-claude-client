@@ -1,4 +1,4 @@
-# Contributing to claude-devel-client
+# Contributing to native-claude-client
 
 Thanks for your interest in contributing! This project is in early planning stages (pre-v0.1), so the best ways to help are evolving.
 
@@ -10,7 +10,7 @@ Thanks for your interest in contributing! This project is in early planning stag
 **Status:** Design decisions in progress, no code yet
 
 **Best ways to contribute right now:**
-1. **Share your workflow** in [Discussions](https://github.com/continuity-bridge/claude-devel-client/discussions)
+1. **Share your workflow** in [Discussions](https://github.com/continuity-bridge/native-claude-client/discussions)
 2. **Vote on design decisions** (window layout, git integration depth, etc.)
 3. **Report bugs** when v0.1 releases (testing will be critical)
 
@@ -25,11 +25,11 @@ Thanks for your interest in contributing! This project is in early planning stag
 
 ### 1. Join Discussions
 
-The best way to shape the project is through [Discussions](https://github.com/continuity-bridge/claude-devel-client/discussions).
+The best way to shape the project is through [Discussions](https://github.com/continuity-bridge/native-claude-client/discussions).
 
 **Active topics:**
-- [Window Layout: Tabs vs Panes vs Hybrid?](https://github.com/continuity-bridge/claude-devel-client/discussions/1)
-- [What features would make this useful for your workflow?](https://github.com/continuity-bridge/claude-devel-client/discussions/2)
+- [Window Layout: Tabs vs Panes vs Hybrid?](https://github.com/continuity-bridge/native-claude-client/discussions/1)
+- [What features would make this useful for your workflow?](https://github.com/continuity-bridge/native-claude-client/discussions/2)
 
 **Discussion categories:**
 - **💡 Ideas** - Feature proposals and suggestions
@@ -85,7 +85,7 @@ Once the codebase exists, here's how to contribute code:
 
 ### Development Setup
 
-See [Wiki: Development Setup](https://github.com/continuity-bridge/claude-devel-client/wiki/Development-Setup) for environment configuration (coming soon).
+See [Wiki: Development Setup](https://github.com/continuity-bridge/native-claude-client/wiki/Development-Setup) for environment configuration (coming soon).
 
 **Requirements:**
 - Python 3.11+
@@ -127,7 +127,7 @@ def load_session(session_id: str) -> dict:
         FileNotFoundError: If session file doesn't exist
     """
     # Use pathlib for cross-platform paths
-    session_file = Path.home() / '.config' / 'claude-devel-client' / f'{session_id}.json'
+    session_file = Path.home() / '.config' / 'native-claude-client' / f'{session_id}.json'
     
     try:
         with open(session_file) as f:
@@ -182,6 +182,12 @@ See docs/code-style.md in this repository for complete guidelines.
 - Complexity without clear user benefit
 - Features that conflict with roadmap priorities
 
+**Foundational Alignment:** 
+- Contributions should also allow the client to natively parse and display data from 
+  - our continuity-bridge .claude/FOUNDATION structure
+  - our continuity-bridge .claude/context structure
+  - our continuity-bridge standalone utilities and services 
+
 This isn't personal - it's about keeping the project focused.
 
 ---
@@ -210,9 +216,9 @@ Violations will result in removal from the project.
 
 ## Questions?
 
-- **General questions:** [Q&A Discussions](https://github.com/continuity-bridge/claude-devel-client/discussions/categories/q-a)
-- **Design questions:** [Design Decisions](https://github.com/continuity-bridge/claude-devel-client/discussions/categories/design-decisions)
-- **Bugs (post-v0.1):** [Issues](https://github.com/continuity-bridge/claude-devel-client/issues)
+- **General questions:** [Q&A Discussions](https://github.com/continuity-bridge/native-claude-client/discussions/categories/q-a)
+- **Design questions:** [Design Decisions](https://github.com/continuity-bridge/native-claude-client/discussions/categories/design-decisions)
+- **Bugs (post-v0.1):** [Issues](https://github.com/continuity-bridge/native-claude-client/issues)
 
 ---
 
