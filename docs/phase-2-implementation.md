@@ -1,7 +1,7 @@
 # Phase 2 Implementation Guide
 
 **Version:** 1.0.0  
-**Target:** native-claude-client v0.1 MVP  
+**Target:** Erebos v0.1 MVP  
 **Author:** Vector/Shepard + Uncle Tallest  
 **Created:** 2026-04-01
 
@@ -9,7 +9,7 @@
 
 ## Overview
 
-**Phase 2** builds the Event System - the foundation for all hook-based automation in native-claude-client. This guide provides step-by-step implementation instructions with code examples, test cases, and validation criteria.
+**Phase 2** builds the Event System - the foundation for all hook-based automation in Erebos. This guide provides step-by-step implementation instructions with code examples, test cases, and validation criteria.
 
 **Timeline:** 6 weeks (44 hours estimated)  
 **Dependencies:** None - this is foundational work  
@@ -37,35 +37,35 @@
 
 **Create directories:**
 ```bash
-cd native-claude-client
-mkdir -p native_claude_client/events
-mkdir -p native_claude_client/hooks
-mkdir -p native_claude_client/session
+cd Erebos
+mkdir -p erebos/events
+mkdir -p erebos/hooks
+mkdir -p erebos/session
 mkdir -p logs/hooks
-touch native_claude_client/events/__init__.py
-touch native_claude_client/hooks/__init__.py
-touch native_claude_client/session/__init__.py
+touch erebos/events/__init__.py
+touch erebos/hooks/__init__.py
+touch erebos/session/__init__.py
 ```
 
 **Create symlinks to Substrate hooks:**
 ```bash
-cd native-claude-client
+cd Erebos
 ln -s ~/Substrate/.claude/FOUNDATION/hooks/hooks-registry.json \
-  native_claude_client/config/hooks-registry.json
+  erebos/config/hooks-registry.json
 ln -s ~/Substrate/.claude/FOUNDATION/hooks/hooks-config.json \
-  native_claude_client/config/hooks-config.json
+  erebos/config/hooks-config.json
 ```
 
 ---
 
 ### Task 1.2: Implement EventBus (4h)
 
-**File:** `native_claude_client/events/bus.py`
+**File:** `erebos/events/bus.py`
 
 ```python
 """
 Event bus for pub/sub event routing.
-Central hub for all events in native-claude-client.
+Central hub for all events in Erebos.
 """
 
 from collections import defaultdict
@@ -147,7 +147,7 @@ class EventBus:
 
 ```python
 import pytest
-from native_claude_client.events.bus import EventBus
+from erebos.events.bus import EventBus
 
 
 def test_subscribe_and_emit():
@@ -194,7 +194,7 @@ def test_handler_error_doesnt_crash():
 
 ### Task 1.3: Implement EventEmitter (6h)
 
-**File:** `native_claude_client/events/emitter.py`
+**File:** `erebos/events/emitter.py`
 
 ```python
 """
@@ -237,7 +237,7 @@ class EventEmitter:
             "event": "session_start",
             "timestamp": self.session_start_time.isoformat() + "Z",
             "session_id": self.session_id,
-            "platform": "native-claude-client",
+            "platform": "Erebos",
             "domain": domain,
             "prior_session_id": prior_session_id
         }
@@ -318,8 +318,8 @@ class EventEmitter:
 
 ```python
 import pytest
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.emitter import EventEmitter
+from erebos.events.bus import EventBus
+from erebos.events.emitter import EventEmitter
 
 
 def test_session_start_emission():
@@ -424,7 +424,7 @@ def test_session_lifecycle():
 
 ### Task 3.1: Implement FailureTracker (8h)
 
-**File:** `native_claude_client/events/failure_tracker.py`
+**File:** `erebos/events/failure_tracker.py`
 
 ```python
 """
@@ -603,7 +603,7 @@ def test_velocity_adjustment():
 
 ### Task 3.2: Implement TokenMonitor (4h)
 
-**File:** `native_claude_client/events/token_monitor.py`
+**File:** `erebos/events/token_monitor.py`
 
 ```python
 """
@@ -687,7 +687,7 @@ class TokenMonitor:
 
 ### Task 4.1: Implement HookExecutor (12h)
 
-**File:** `native_claude_client/hooks/executor.py`
+**File:** `erebos/hooks/executor.py`
 
 ```python
 """

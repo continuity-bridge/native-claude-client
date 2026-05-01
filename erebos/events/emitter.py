@@ -38,7 +38,7 @@ class EventEmitter:
             "event": "session_start",
             "timestamp": self.session_start_time.isoformat().replace("+00:00", "Z"),
             "session_id": self.session_id,
-            "platform": "native-claude-client",
+            "platform": "erebos",
             "domain": domain,
             "prior_session_id": prior_session_id,
         }

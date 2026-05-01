@@ -1,7 +1,7 @@
 .PHONY: help install install-dev test lint format clean run
 
 help:
-	@echo "Native Claude Client - Development Tasks"
+	@echo "Erebos - Development Tasks"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  install      - Install package in current environment"
@@ -24,16 +24,16 @@ test:
 
 lint:
 	@echo "Running black (check only)..."
-	black --check native_claude_client tests
+	black --check erebos tests
 	@echo ""
 	@echo "Running pylint..."
-	pylint native_claude_client
+	pylint erebos
 	@echo ""
 	@echo "Running mypy..."
-	mypy native_claude_client
+	mypy erebos
 
 format:
-	black native_claude_client tests
+	black erebos tests
 
 clean:
 	rm -rf build/

@@ -3,10 +3,10 @@ Integration tests for event system with FailureTracker.
 """
 
 import pytest
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.emitter import EventEmitter
-from native_claude_client.events.failure_tracker import FailureTracker
-from native_claude_client.llm.ollama_client import OllamaClient
+from erebos.events.bus import EventBus
+from erebos.events.emitter import EventEmitter
+from erebos.events.failure_tracker import FailureTracker
+from erebos.llm.ollama_client import OllamaClient
 from tests.events.test_config import get_test_config
 
 

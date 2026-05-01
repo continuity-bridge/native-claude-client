@@ -31,7 +31,7 @@ FailureTracker is the intelligent monitoring layer that detects when tool calls 
 ## Files Created
 
 ```
-native_claude_client/events/
+erebos/events/
 └── failure_tracker.py         # FailureTracker implementation (120 lines)
 
 tests/events/
@@ -101,9 +101,9 @@ config = {
 ## Usage Example
 
 ```python
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.emitter import EventEmitter
-from native_claude_client.events.failure_tracker import FailureTracker
+from erebos.events.bus import EventBus
+from erebos.events.emitter import EventEmitter
+from erebos.events.failure_tracker import FailureTracker
 
 # Set up
 bus = EventBus()

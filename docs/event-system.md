@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The Event System is the **foundational infrastructure** for native-claude-client's hook-based automation. It provides a centralized event bus that emits lifecycle events, enabling instance behavior automation without manual intervention.
+The Event System is the **foundational infrastructure** for Erebos's hook-based automation. It provides a centralized event bus that emits lifecycle events, enabling instance behavior automation without manual intervention.
 
 **Core Purpose:** Make critical instance behaviors unavoidable by triggering them automatically at the right moments.
 
@@ -59,7 +59,7 @@ Tool Failure / Token Threshold / User Action
     "event": "session_start",
     "timestamp": "2026-04-01T14:30:00Z",
     "session_id": "uuid-v4",
-    "platform": "native-claude-client",
+    "platform": "Erebos",
     "domain": "domain_1_professional",  # detected from context
     "prior_session_id": "uuid-v4" | None  # if resuming
 }
@@ -197,7 +197,7 @@ Tool Failure / Token Threshold / User Action
 
 ### Component 1: Event Emitter
 
-**Location:** `native_claude_client/events/emitter.py`
+**Location:** `erebos/events/emitter.py`
 
 **Responsibilities:**
 - Detect conditions that warrant events
@@ -242,7 +242,7 @@ class EventEmitter:
 
 ### Component 2: Event Bus
 
-**Location:** `native_claude_client/events/bus.py`
+**Location:** `erebos/events/bus.py`
 
 **Responsibilities:**
 - Central event routing
@@ -278,7 +278,7 @@ class EventBus:
 
 ### Component 3: Tool Failure Tracker
 
-**Location:** `native_claude_client/events/failure_tracker.py`
+**Location:** `erebos/events/failure_tracker.py`
 
 **Responsibilities:**
 - Count consecutive failures per tool family
@@ -346,7 +346,7 @@ class FailureTracker:
 
 ### Component 4: Token Monitor
 
-**Location:** `native_claude_client/events/token_monitor.py`
+**Location:** `erebos/events/token_monitor.py`
 
 **Responsibilities:**
 - Track current token usage
@@ -385,7 +385,7 @@ class TokenMonitor:
 
 ### Component 5: Hook Executor Engine
 
-**Location:** `native_claude_client/hooks/executor.py`
+**Location:** `erebos/hooks/executor.py`
 
 **Responsibilities:**
 - Load hooks-registry.json + hooks-config.json
@@ -430,7 +430,7 @@ class HookExecutor:
 ## File Structure
 
 ```
-native_claude_client/
+erebos/
 ├── events/
 │   ├── __init__.py
 │   ├── emitter.py           # EventEmitter class

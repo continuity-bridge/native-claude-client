@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "native-claude-client"
+name = "erebos"
 version = "0.1.0-dev"
 description = "Native GTK4 client for Claude with agentic development workflows and intelligent automation"
 readme = "README.md"
@@ -45,17 +45,17 @@ gtk = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/continuity-bridge/native-claude-client"
-Repository = "https://github.com/continuity-bridge/native-claude-client"
-Issues = "https://github.com/continuity-bridge/native-claude-client/issues"
-Documentation = "https://github.com/continuity-bridge/native-claude-client/wiki"
+Homepage = "https://github.com/continuity-bridge/Erebos"
+Repository = "https://github.com/continuity-bridge/Erebos"
+Issues = "https://github.com/continuity-bridge/Erebos/issues"
+Documentation = "https://github.com/continuity-bridge/Erebos/wiki"
 
 [project.scripts]
-native-claude-client = "native_claude_client.main:main"
+erebos = "erebos.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["native_claude_client*"]
+include = ["erebos*"]
 exclude = ["tests*", "docs*"]
 
 [tool.black]
@@ -101,13 +101,13 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
     "--verbose",
-    "--cov=native_claude_client",
+    "--cov=erebos",
     "--cov-report=term-missing",
     "--cov-report=html",
 ]
 
 [tool.coverage.run]
-source = ["native_claude_client"]
+source = ["erebos"]
 omit = [
     "*/tests/*",
     "*/test_*.py",

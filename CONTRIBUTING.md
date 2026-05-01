@@ -1,4 +1,4 @@
-# Contributing to native-claude-client
+# Contributing to erebos
 
 Thanks for your interest in contributing! This project is in early planning stages (pre-v0.1), so the best ways to help are evolving.
 
@@ -10,11 +10,13 @@ Thanks for your interest in contributing! This project is in early planning stag
 **Status:** Design decisions in progress, no code yet
 
 **Best ways to contribute right now:**
-1. **Share your workflow** in [Discussions](https://github.com/continuity-bridge/native-claude-client/discussions)
+
+1. **Share your workflow** in [Discussions](https://github.com/continuity-bridge/Erebos/discussions)
 2. **Vote on design decisions** (window layout, git integration depth, etc.)
 3. **Report bugs** when v0.1 releases (testing will be critical)
 
 **Not ready yet:**
+
 - Code contributions (no codebase exists)
 - Documentation writing (architecture still forming)
 - Plugin development (v1.0 feature)
@@ -25,13 +27,15 @@ Thanks for your interest in contributing! This project is in early planning stag
 
 ### 1. Join Discussions
 
-The best way to shape the project is through [Discussions](https://github.com/continuity-bridge/native-claude-client/discussions).
+The best way to shape the project is through [Discussions](https://github.com/continuity-bridge/Erebos/discussions).
 
 **Active topics:**
-- [Window Layout: Tabs vs Panes vs Hybrid?](https://github.com/continuity-bridge/native-claude-client/discussions/1)
-- [What features would make this useful for your workflow?](https://github.com/continuity-bridge/native-claude-client/discussions/2)
+
+- [Window Layout: Tabs vs Panes vs Hybrid?](https://github.com/continuity-bridge/Erebos/discussions/1)
+- [What features would make this useful for your workflow?](https://github.com/continuity-bridge/Erebos/discussions/2)
 
 **Discussion categories:**
+
 - **💡 Ideas** - Feature proposals and suggestions
 - **🎨 Design Decisions** - UI/UX and architecture discussions
 - **❓ Q&A** - Questions about the project
@@ -41,6 +45,7 @@ The best way to shape the project is through [Discussions](https://github.com/co
 ### 2. Provide Feedback
 
 We especially want to hear from:
+
 - Developers who use Claude for coding daily
 - Linux desktop enthusiasts who care about native apps
 - Git power users who have opinions on review workflows
@@ -53,6 +58,7 @@ We especially want to hear from:
 When v0.1 releases (target: August 2026), testing on different distros will be critical.
 
 **We'll need testers on:**
+
 - Ubuntu / Debian
 - Fedora / RHEL
 - Arch / Manjaro
@@ -68,16 +74,19 @@ Once the codebase exists, here's how to contribute code:
 ### Before You Start
 
 **For bug fixes:**
+
 - Just submit a PR with the fix
 - Include steps to reproduce the bug
 
 **For new features:**
+
 - Open an issue first to discuss
 - Avoids wasted work if feature doesn't fit roadmap
 - Lets us refine the approach together
 - Ensures you're not duplicating ongoing work
 
 **For major architectural changes:**
+
 - Open a Discussion in the Design Decisions category
 - These affect everything, need broader input
 
@@ -85,9 +94,10 @@ Once the codebase exists, here's how to contribute code:
 
 ### Development Setup
 
-See [Wiki: Development Setup](https://github.com/continuity-bridge/native-claude-client/wiki/Development-Setup) for environment configuration (coming soon).
+See [Wiki: Development Setup](https://github.com/continuity-bridge/Erebos/wiki/Development-Setup) for environment configuration (coming soon).
 
 **Requirements:**
+
 - Python 3.11+
 - GTK4 / PyGObject
 - Linux (Wayland preferred)
@@ -112,23 +122,24 @@ Key conventions:
 - GTK4: Descriptive widget names, clear signal handler names
 
 Quick example:
+
 ```python
 def load_session(session_id: str) -> dict:
     """
     Load session data from storage.
-    
+
     Args:
         session_id: Unique session identifier
-        
+
     Returns:
         Session data dictionary
-        
+
     Raises:
         FileNotFoundError: If session file doesn't exist
     """
     # Use pathlib for cross-platform paths
-    session_file = Path.home() / '.config' / 'native-claude-client' / f'{session_id}.json'
-    
+    session_file = Path.home() / '.config' / 'Erebos' / f'{session_id}.json'
+
     try:
         with open(session_file) as f:
             return json.load(f)
@@ -139,6 +150,7 @@ def load_session(session_id: str) -> dict:
         logger.error(f"Invalid session data: {e}")
         raise
 ```
+
 See docs/code-style.md in this repository for complete guidelines.
 
 ---
@@ -154,12 +166,14 @@ See docs/code-style.md in this repository for complete guidelines.
 7. Open a Pull Request
 
 **PR guidelines:**
+
 - Clear title describing the change
-- Description explaining *why* (not just *what*)
+- Description explaining _why_ (not just _what_)
 - Link to related issue/discussion if applicable
 - One logical change per PR (not 5 unrelated fixes)
 
 **Review process:**
+
 - Maintainer will review within a few days
 - May request changes or clarification
 - PRs that don't fit project goals will be closed with explanation
@@ -170,23 +184,26 @@ See docs/code-style.md in this repository for complete guidelines.
 ## What We're Looking For
 
 **Contributions that align with project principles:**
+
 1. **Native first** - Truly native Linux, not web wrappers
 2. **Developer-focused** - Solve developer pain points
 3. **Review-first** - Transparency before action
 4. **Maintainable** - Simple over clever
 
 **Contributions we'll likely decline:**
+
 - Features that only work on Windows/Mac
 - Dependencies on Electron or web technologies
 - Telemetry or tracking of any kind
 - Complexity without clear user benefit
 - Features that conflict with roadmap priorities
 
-**Foundational Alignment:** 
-- Contributions should also allow the client to natively parse and display data from 
+**Foundational Alignment:**
+
+- Contributions should also allow the client to natively parse and display data from
   - our continuity-bridge .claude/FOUNDATION structure
   - our continuity-bridge .claude/context structure
-  - our continuity-bridge standalone utilities and services 
+  - our continuity-bridge standalone utilities and services
 
 This isn't personal - it's about keeping the project focused.
 
@@ -216,9 +233,9 @@ Violations will result in removal from the project.
 
 ## Questions?
 
-- **General questions:** [Q&A Discussions](https://github.com/continuity-bridge/native-claude-client/discussions/categories/q-a)
-- **Design questions:** [Design Decisions](https://github.com/continuity-bridge/native-claude-client/discussions/categories/design-decisions)
-- **Bugs (post-v0.1):** [Issues](https://github.com/continuity-bridge/native-claude-client/issues)
+- **General questions:** [Q&A Discussions](https://github.com/continuity-bridge/Erebos/discussions/categories/q-a)
+- **Design questions:** [Design Decisions](https://github.com/continuity-bridge/Erebos/discussions/categories/design-decisions)
+- **Bugs (post-v0.1):** [Issues](https://github.com/continuity-bridge/Erebos/issues)
 
 ---
 

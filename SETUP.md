@@ -1,6 +1,6 @@
 # Developer Setup
 
-Quick start guide for contributing to native-claude-client.
+Quick start guide for contributing to erebos.
 
 ## Prerequisites
 
@@ -11,13 +11,15 @@ Quick start guide for contributing to native-claude-client.
 ## Initial Setup
 
 1. **Clone the repository:**
+
    ```bash
    cd ~/Scriptorium/Devel/UncleTallest/organizations/continuity-bridge
-   git clone https://github.com/continuity-bridge/native-claude-client.git
-   cd native-claude-client
+   git clone https://github.com/continuity-bridge/Erebos.git
+   cd Erebos
    ```
 
 2. **Install development dependencies:**
+
    ```bash
    make install-dev
    # Or manually:
@@ -61,9 +63,9 @@ make format
 make lint
 
 # Individual tools:
-black --check native_claude_client  # Style check
-pylint native_claude_client         # Linter
-mypy native_claude_client           # Type checker
+black --check erebos  # Style check
+pylint erebos         # Linter
+mypy erebos           # Type checker
 ```
 
 ### Common Tasks
@@ -77,8 +79,8 @@ make install       # Install without dev dependencies
 ## Project Structure
 
 ```
-native-claude-client/
-├── native_claude_client/     # Main package
+Erebos/
+├── erebos/     # Main package
 │   ├── events/              # Event system (EventBus, EventEmitter)
 │   └── llm/                 # LLM clients (Ollama, Claude)
 ├── tests/                   # Test suite
@@ -92,11 +94,13 @@ native-claude-client/
 ## Git Workflow
 
 1. **Create feature branch:**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 2. **Make changes and test:**
+
    ```bash
    make format    # Auto-format
    make lint      # Check style
@@ -104,6 +108,7 @@ native-claude-client/
    ```
 
 3. **Commit and push:**
+
    ```bash
    git add .
    git commit -m "Brief description of changes"
@@ -129,6 +134,7 @@ native-claude-client/
 ## Troubleshooting
 
 **Ollama not found:**
+
 ```bash
 # Check if Ollama is running
 curl http://localhost:11434/api/tags
@@ -138,12 +144,14 @@ ollama serve
 ```
 
 **Import errors:**
+
 ```bash
 # Reinstall in editable mode
 pip install -e ".[dev]"
 ```
 
 **Test failures:**
+
 ```bash
 # Run with verbose output
 pytest -v

@@ -4,8 +4,8 @@ Unit tests for FailureTracker.
 
 import time
 import pytest
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.failure_tracker import FailureTracker
+from erebos.events.bus import EventBus
+from erebos.events.failure_tracker import FailureTracker
 from tests.events.test_config import get_test_config
 
 

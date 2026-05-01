@@ -3,8 +3,8 @@ Unit tests for TokenMonitor.
 """
 
 import pytest
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.token_monitor import TokenMonitor
+from erebos.events.bus import EventBus
+from erebos.events.token_monitor import TokenMonitor
 
 
 def test_threshold_emission_60():

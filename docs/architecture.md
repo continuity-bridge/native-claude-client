@@ -9,4 +9,4 @@ This document will contain:
 - Authentication approach
 - Session management design
 
-See [Wiki: Architecture Overview](https://github.com/continuity-bridge/native-claude-client/wiki/Architecture-Overview) for details as they develop.
+See [Wiki: Architecture Overview](https://github.com/continuity-bridge/Erebos/wiki/Architecture-Overview) for details as they develop.

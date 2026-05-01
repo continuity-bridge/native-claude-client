@@ -6,9 +6,9 @@ This demonstrates the event-driven architecture before building the GTK4 UI.
 """
 
 import logging
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.emitter import EventEmitter
-from native_claude_client.llm.ollama_client import OllamaClient
+from erebos.events.bus import EventBus
+from erebos.events.emitter import EventEmitter
+from erebos.llm.ollama_client import OllamaClient
 
 # Set up logging
 logging.basicConfig(

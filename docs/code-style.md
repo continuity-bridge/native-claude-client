@@ -1,6 +1,6 @@
 # Code Style Guide
 
-**For native-claude-client development**
+**For Erebos development**
 
 This guide distills core coding principles for this project. Comprehensive style guides for all continuity-bridge projects will be published to the public repository.
 
@@ -148,7 +148,7 @@ The code shows HOW. Comments provide context and reasoning.
 ```python
 #!/usr/bin/env python3
 """
-Session management for native-claude-client
+Session management for Erebos
 
 Author: Vector (AI-generated)
 Created: 2026-03-09
@@ -291,11 +291,11 @@ Each helper has single, clear responsibility.
 from pathlib import Path
 
 # Good - cross-platform
-config_dir = Path.home() / '.config' / 'native-claude-client'
+config_dir = Path.home() / '.config' / 'Erebos'
 session_file = config_dir / 'sessions' / f'{session_id}.json'
 
 # Bad - platform-specific
-config_dir = "/home/user/.config/native-claude-client"  # Linux only
+config_dir = "/home/user/.config/Erebos"  # Linux only
 ```
 
 ---
@@ -335,4 +335,4 @@ Before committing:
 
 ---
 
-*This guide distills core principles for native-claude-client. Comprehensive style guides covering all continuity-bridge projects will be published to the public repository.*
+*This guide distills core principles for Erebos. Comprehensive style guides covering all continuity-bridge projects will be published to the public repository.*

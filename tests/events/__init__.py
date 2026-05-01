@@ -1,1 +1,1 @@
-"""Tests for native-claude-client."""
+"""Tests for Erebos."""

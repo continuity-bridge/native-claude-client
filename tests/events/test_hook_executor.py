@@ -5,9 +5,9 @@ Unit tests for HookExecutor.
 import json
 import tempfile
 import pytest
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.emitter import EventEmitter
-from native_claude_client.events.hook_executor import HookExecutor
+from erebos.events.bus import EventBus
+from erebos.events.emitter import EventEmitter
+from erebos.events.hook_executor import HookExecutor
 
 
 def test_load_registry():

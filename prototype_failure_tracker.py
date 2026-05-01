@@ -6,10 +6,10 @@ Demonstrates intelligent failure detection and threshold events.
 """
 
 import logging
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.emitter import EventEmitter
-from native_claude_client.events.failure_tracker import FailureTracker
-from native_claude_client.llm.ollama_client import OllamaClient
+from erebos.events.bus import EventBus
+from erebos.events.emitter import EventEmitter
+from erebos.events.failure_tracker import FailureTracker
+from erebos.llm.ollama_client import OllamaClient
 
 # Set up logging
 logging.basicConfig(

@@ -1,6 +1,6 @@
 """
 Event bus for pub/sub event routing.
-Central hub for all events in native-claude-client.
+Central hub for all events in erebos.
 """
 
 from collections import defaultdict

@@ -1,7 +1,7 @@
 # Hook Integration Plan for v0.1 MVP
 
 **Version:** 1.0.0  
-**Target:** native-claude-client v0.1 MVP (March - August 2026)  
+**Target:** Erebos v0.1 MVP (March - August 2026)  
 **Author:** Vector/Shepard + Uncle Tallest  
 **Created:** 2026-04-01
 
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The hook system transforms native-claude-client from a "smart chat app" into an **agentic development environment**. This document shows how hooks integrate with v0.1 MVP features to deliver:
+The hook system transforms Erebos from a "smart chat app" into an **agentic development environment**. This document shows how hooks integrate with v0.1 MVP features to deliver:
 
 ✅ **Zero-friction tool loading** - Never type `tool_search` again  
 ✅ **Automatic session persistence** - Work is always captured  
@@ -22,13 +22,13 @@ The hook system transforms native-claude-client from a "smart chat app" into an 
 
 ## v0.1 MVP Features (from README)
 
-| Feature | Status | Hook Integration |
-|---------|--------|------------------|
-| Single conversation pane | Core | ✅ Session start/end hooks |
-| Claude API integration | Core | ✅ Tool failure detection |
-| Basic diff viewer (read-only) | Core | ⏳ Future: git hooks |
-| Limit tracking display | Core | ✅ Token threshold hooks |
-| Session persistence | Core | ✅ **PRIMARY HOOK USE CASE** |
+| Feature                       | Status | Hook Integration             |
+| ----------------------------- | ------ | ---------------------------- |
+| Single conversation pane      | Core   | ✅ Session start/end hooks   |
+| Claude API integration        | Core   | ✅ Tool failure detection    |
+| Basic diff viewer (read-only) | Core   | ⏳ Future: git hooks         |
+| Limit tracking display        | Core   | ✅ Token threshold hooks     |
+| Session persistence           | Core   | ✅ **PRIMARY HOOK USE CASE** |
 
 ---
 
@@ -37,6 +37,7 @@ The hook system transforms native-claude-client from a "smart chat app" into an 
 ### For MVP Users (March - August 2026)
 
 **Without Hooks:**
+
 1. Start conversation
 2. Try to use Filesystem tool → Error: "Tool not loaded"
 3. Manually call `tool_search(query="filesystem")`
@@ -47,6 +48,7 @@ The hook system transforms native-claude-client from a "smart chat app" into an 
 8. Session data lost if app crashes
 
 **With Hooks:**
+
 1. Start conversation → **Hooks auto-load tools based on domain**
 2. Tools just work immediately
 3. If tool fails 3 times → **Hook auto-loads it**
@@ -63,7 +65,7 @@ The hook system transforms native-claude-client from a "smart chat app" into an 
 
 ```
 ┌─────────────────────────────────────────────────┐
-│         native-claude-client v0.1               │
+│         Erebos v0.1               │
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │  ┌──────────────┐      ┌──────────────┐        │
@@ -104,6 +106,7 @@ The hook system transforms native-claude-client from a "smart chat app" into an 
 **Hook Integration:**
 
 **session-end hook:**
+
 - **Trigger:** User closes app, types "wrap up", or 85% token budget
 - **Action:** Write session summary to:
   1. Notion Session Log database (PRIMARY)
@@ -117,20 +120,22 @@ The hook system transforms native-claude-client from a "smart chat app" into an 
   - Next steps for resume
 
 **Implementation:**
+
 ```python
 # In ClaudeClient.close_conversation()
 def close_conversation(self):
     # Existing MVP code
     self.save_chat_history()
-    
+
     # NEW: Emit session_end event
     self.emitter.end_session(trigger="user_action")
-    
+
     # Hook automatically writes to 3 locations
     # No manual persistence code needed!
 ```
 
 **User Experience:**
+
 - Close app mid-conversation
 - Reopen next day
 - Check Notion Session Log → See complete summary
@@ -146,6 +151,7 @@ def close_conversation(self):
 **Hook Integration:**
 
 **predictive-tool-loader hook:**
+
 - **Trigger:** `session_start` event
 - **Action:** Pre-load tools based on detected domain
   - Professional → Filesystem, Calendar, Gmail, Atlassian
@@ -153,11 +159,13 @@ def close_conversation(self):
   - Default → Filesystem only
 
 **auto-tool-loader hook:**
+
 - **Trigger:** 3 consecutive tool failures (velocity-aware)
 - **Action:** Automatically call `tool_search` for failed family
 - **Recovery:** Tools available for retry
 
 **Implementation:**
+
 ```python
 # In ClaudeClient.call_tool()
 def call_tool(self, tool_name: str, params: dict):
@@ -168,15 +176,16 @@ def call_tool(self, tool_name: str, params: dict):
         # NEW: Emit failure event
         family = self._detect_family(tool_name)
         self.emitter.tool_failed(tool_name, family, "not_loaded", str(e))
-        
+
         # FailureTracker counts this
         # After 3 failures, auto-tool-loader hook fires
         # Hook calls tool_search automatically
-        
+
         raise  # Let UI handle user-facing error
 ```
 
 **User Experience:**
+
 - Try to use Calendar tool → Fails (not loaded)
 - Try again → Fails
 - Try third time → **Hook auto-loads Calendar tools**
@@ -192,33 +201,36 @@ def call_tool(self, tool_name: str, params: dict):
 **Hook Integration:**
 
 **auto-compact hook:**
+
 - **Trigger:** 60% token budget (proactive)
-- **Action:** 
+- **Action:**
   1. Capture pre-compact state
   2. Recommend compact message to user
   3. After compact, suggest scaffolding reload
 
 **Implementation:**
+
 ```python
 # In ClaudeClient.send_message()
 def send_message(self, message: str):
     response = self.api.messages.create(...)
-    
+
     # NEW: Update token monitor
     total_tokens = response.usage.input_tokens + response.usage.output_tokens
     self.token_monitor.update(total_tokens)
-    
+
     # TokenMonitor emits events at 60%, 80%, 85%, 90%
     # auto-compact hook listens for 60%
     # Shows UI notification: "Consider rotating context"
-    
+
     # Update UI progress bar
     self.ui.update_token_display(total_tokens, self.max_tokens)
-    
+
     return response
 ```
 
 **User Experience:**
+
 - UI shows token progress bar
 - At 60% → Notification: "Good time to rotate context (git commit just completed)"
 - Click → Suggested compact message pre-filled
@@ -234,6 +246,7 @@ def send_message(self, message: str):
 ### Detection Methods
 
 **Method 1: Project Directory (v0.1)**
+
 ```python
 def detect_domain_from_path(cwd: str) -> str:
     """Detect domain from current working directory."""
@@ -248,6 +261,7 @@ def detect_domain_from_path(cwd: str) -> str:
 ```
 
 **Method 2: Domain Primer File (v0.2+)**
+
 ```python
 # Check for .claude-domain file in project root
 def detect_domain_from_primer() -> str:
@@ -259,6 +273,7 @@ def detect_domain_from_primer() -> str:
 ```
 
 **Method 3: User Selection (v0.1 fallback)**
+
 ```python
 # UI dropdown on session start
 # "Which workspace are you in?"
@@ -274,25 +289,27 @@ def detect_domain_from_primer() -> str:
 
 ### Symlinks to Substrate
 
-**Why:** Hooks are defined in Substrate (ground truth), but native-claude-client needs access.
+**Why:** Hooks are defined in Substrate (ground truth), but Erebos needs access.
 
 **Setup:**
+
 ```bash
-# In native-claude-client repo
+# In Erebos repo
 ln -s ~/Substrate/.claude/FOUNDATION/hooks/hooks-registry.json \
-  native_claude_client/config/hooks-registry.json
+  erebos/config/hooks-registry.json
 
 ln -s ~/Substrate/.claude/FOUNDATION/hooks/hooks-config.json \
-  native_claude_client/config/hooks-config.json
+  erebos/config/hooks-config.json
 
 ln -s ~/Substrate/.claude/FOUNDATION/hooks/executors \
-  native_claude_client/hooks/executors
+  erebos/hooks/executors
 ```
 
 **Benefit:**
+
 - Single source of truth in Substrate
 - Changes sync automatically
-- Native-claude-client stays lean
+- Erebos stays lean
 - Works across Claude Desktop, Web, Mobile
 
 ---
@@ -302,8 +319,9 @@ ln -s ~/Substrate/.claude/FOUNDATION/hooks/executors \
 ### Scenario: Professional Developer Starting Session
 
 **Step 1: App Launch**
+
 ```
-User opens native-claude-client
+User opens Erebos
   ↓
 SessionManager.start_session()
   ↓
@@ -327,6 +345,7 @@ User can use tools immediately (or after brief load)
 ```
 
 **User sees:**
+
 - App opens
 - Brief "Loading workspace tools..." spinner (2-3s)
 - Tools ready to use
@@ -337,6 +356,7 @@ User can use tools immediately (or after brief load)
 ### Scenario: Tool Failure Recovery
 
 **Step 1: User tries Notion (not pre-loaded)**
+
 ```
 User: "Create a page in Notion"
   ↓
@@ -352,6 +372,7 @@ FailureTracker increments: Notion failures = 1
 ```
 
 **Step 2: Second attempt**
+
 ```
 User tries again (or different Notion tool)
   ↓
@@ -363,6 +384,7 @@ FailureTracker: Notion failures = 2
 ```
 
 **Step 3: Third attempt**
+
 ```
 Third failure
   ↓
@@ -382,6 +404,7 @@ User's next attempt succeeds
 ```
 
 **User sees:**
+
 - First 3 attempts fail with "Tool not loaded"
 - Brief "Loading Notion tools..." notification
 - Fourth attempt succeeds
@@ -394,17 +417,20 @@ User's next attempt succeeds
 ### Phase 1: MVP Foundation (v0.1)
 
 **Hooks to Enable:**
+
 1. ✅ predictive-tool-loader
 2. ✅ auto-tool-loader
 3. ✅ session-end
 
 **Why These:**
+
 - Solve immediate pain (tool loading)
 - Deliver session persistence (MVP requirement)
 - Low implementation complexity
 - High user value
 
 **Not Yet:**
+
 - ❌ auto-compact (requires more UI work)
 - ❌ tool-usage-analyzer (needs data first)
 - ❌ decision-validator (future enhancement)
@@ -415,6 +441,7 @@ User's next attempt succeeds
 ### Phase 2: Analytics & Optimization (v0.2)
 
 **Add:**
+
 - tool-usage-analyzer (weekly reports)
 - auto-compact (with UI prompts)
 
@@ -425,6 +452,7 @@ User's next attempt succeeds
 ### Phase 3: Advanced Automation (v0.3+)
 
 **Add:**
+
 - decision-validator (for git workflows)
 - focus-shepherd (tangent detection)
 - Custom hooks (user-defined)
@@ -473,6 +501,7 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 ```
 
 **Hover tooltips:**
+
 - "8 tools loaded" → Shows which families (Filesystem, Calendar, etc.)
 - "Domain: Professional" → Explains what this means
 
@@ -483,12 +512,14 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 ### v0.1 MVP Goals
 
 **Quantitative:**
+
 - ✅ Zero manual `tool_search` calls (100% reduction)
 - ✅ 100% session capture rate (vs 0% without hooks)
 - ✅ <3s tool loading time on session start
 - ✅ 95%+ tool call success rate after auto-load
 
 **Qualitative:**
+
 - ✅ "Tools just work" (user interviews)
 - ✅ "I trust my work is saved" (confidence)
 - ✅ "Faster than Claude Desktop" (benchmark)
@@ -496,12 +527,14 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 ### Data to Track
 
 **Week 1-4:**
+
 - Tool load events per session
 - Auto-load trigger count
 - Session summary write success rate
 - User-reported friction points
 
 **Month 2+:**
+
 - Domain profile accuracy
 - Tools pre-loaded but never used (waste)
 - Tools auto-loaded (should've been pre-loaded)
@@ -516,6 +549,7 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 **Impact:** Loads wrong tools, user has to wait for auto-load
 
 **Mitigation:**
+
 - Provide manual domain selector in UI
 - Remember user's choice per project directory
 - Allow override via `.claude-domain` file
@@ -528,6 +562,7 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 **Impact:** Tools don't load, sessions don't save
 
 **Mitigation:**
+
 - Comprehensive error logging
 - Fallback to manual tool_search if hook fails
 - UI notification: "Automation failed, please load tools manually"
@@ -540,6 +575,7 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 **Impact:** App feels sluggish due to hook processing
 
 **Mitigation:**
+
 - Event bus is in-memory (no I/O)
 - Hooks execute async where possible
 - Profile with 1000+ events/sec benchmark
@@ -577,11 +613,13 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 ### For Users
 
 **Quick Start Guide:**
+
 - "Your first session with auto-loaded tools"
 - "Understanding workspace domains"
 - "Where your session summaries are saved"
 
 **FAQ:**
+
 - "Why did my tools load automatically?"
 - "How do I change my workspace domain?"
 - "Can I disable automation?"
@@ -589,6 +627,7 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 ### For Developers
 
 **Hook Development Guide:**
+
 - How to add custom hooks
 - Hook executor markdown format
 - Testing hook executors
@@ -614,14 +653,16 @@ Session: 1.2 hours │ Tokens: 45,231/200,000 (23%) │ Tools: 8 loaded │ Doma
 
 ## Conclusion
 
-Hooks are **not optional** for v0.1 MVP. They're the **differentiator** that makes native-claude-client superior to Claude Desktop:
+Hooks are **not optional** for v0.1 MVP. They're the **differentiator** that makes Erebos superior to Claude Desktop:
 
 **Without hooks:**
+
 - Manual tool loading (friction)
 - No session persistence (data loss)
 - Panic mode compaction (degraded UX)
 
 **With hooks:**
+
 - Transparent tool management (magic)
 - Automatic session capture (trust)
 - Proactive context rotation (smooth)
@@ -638,4 +679,4 @@ The hook system architecture from March 23-24 is production-ready. The integrati
 
 ---
 
-*Automation transforms tools into an environment.*
+_Automation transforms tools into an environment._

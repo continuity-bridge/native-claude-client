@@ -57,8 +57,8 @@ Future HookExecutor subscribes and auto-loads ollama tools
 ## Repository Structure
 
 ```
-native-claude-client/
-├── native_claude_client/
+Erebos/
+├── erebos/
 │   ├── events/
 │   │   ├── bus.py              # EventBus
 │   │   ├── emitter.py          # EventEmitter
@@ -150,8 +150,8 @@ make lint    # Run all linters
 
 ---
 
-**Repository:** `/home/tallest/Scriptorium/Devel/UncleTallest/organizations/continuity-bridge/native-claude-client`  
-**GitHub:** https://github.com/continuity-bridge/native-claude-client  
+**Repository:** `/home/tallest/Scriptorium/Devel/UncleTallest/organizations/continuity-bridge/Erebos`  
+**GitHub:** https://github.com/continuity-bridge/Erebos  
 **Issue #6 (FailureTracker):** Complete ✓
 
 ---

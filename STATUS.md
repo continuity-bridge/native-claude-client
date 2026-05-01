@@ -23,7 +23,7 @@
 
 ```bash
 # Install
-cd ~/Scriptorium/Devel/UncleTallest/organizations/continuity-bridge/native-claude-client
+cd ~/Scriptorium/Devel/UncleTallest/organizations/continuity-bridge/Erebos
 make install-dev
 
 # Test
@@ -82,5 +82,5 @@ python prototype_failure_tracker.py
 
 ---
 
-**Repository:** https://github.com/continuity-bridge/native-claude-client  
+**Repository:** https://github.com/continuity-bridge/Erebos  
 **Issues:** #5 (Setup) done, #6 (FailureTracker) done

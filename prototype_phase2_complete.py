@@ -12,12 +12,12 @@ Demonstrates:
 import json
 import logging
 import tempfile
-from native_claude_client.events.bus import EventBus
-from native_claude_client.events.emitter import EventEmitter
-from native_claude_client.events.failure_tracker import FailureTracker
-from native_claude_client.events.token_monitor import TokenMonitor
-from native_claude_client.events.hook_executor import HookExecutor
-from native_claude_client.llm.ollama_client import OllamaClient
+from erebos.events.bus import EventBus
+from erebos.events.emitter import EventEmitter
+from erebos.events.failure_tracker import FailureTracker
+from erebos.events.token_monitor import TokenMonitor
+from erebos.events.hook_executor import HookExecutor
+from erebos.llm.ollama_client import OllamaClient
 
 # Set up logging
 logging.basicConfig(

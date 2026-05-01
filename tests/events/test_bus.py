@@ -3,7 +3,7 @@ Unit tests for EventBus.
 """
 
 import pytest
-from native_claude_client.events.bus import EventBus
+from erebos.events.bus import EventBus
 
 
 def test_subscribe_and_emit():

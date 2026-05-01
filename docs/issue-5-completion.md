@@ -37,7 +37,7 @@ Linting infrastructure:
 
 ### Task #3: Set up basic package structure
 **Status:** Partially complete
-- ✓ `native_claude_client/` package created
+- ✓ `erebos/` package created
 - ✓ `events/` and `llm/` subpackages
 - ✓ `__init__.py` files
 - ⏳ Additional structure will grow as needed

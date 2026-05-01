@@ -1,6 +1,6 @@
-# native-claude-client
+# erebos
 
-**Native GTK4 client for Claude with agentic development workflows and intelligent automation**
+\*\*Erebos - Network Ollama Testing CLI for Claude"
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11+-green.svg)](https://python.org)
@@ -34,8 +34,7 @@ Claude Desktop is great, but developers need more:
 - **Data loss on crashes** - Sessions disappear without session persistence
 - **Not truly native** - Electron app with XWayland issues on Wayland
 
-
-native-claude-client solves these with:
+Erebos solves these with:
 
 - **Auto tool loading** - Domain-aware tool pre-loading on session start
 - **Failure recovery** - Automatic tool loading after consecutive failures
@@ -47,7 +46,7 @@ native-claude-client solves these with:
 
 ## Hook System Architecture
 
-The hook system is the intelligence layer that makes native-claude-client proactive instead of reactive:
+The hook system is the intelligence layer that makes Erebos proactive instead of reactive:
 
 **Phase 2 - Event System (v0.1 MVP):**
 
@@ -79,9 +78,9 @@ The hook system is the intelligence layer that makes native-claude-client proact
 - Symlinks to Substrate for single source of truth
 - Graceful fallback if FOUNDATION missing
 
-###### See [Discussion: FOUNDATION Integration](https://github.com/continuity-bridge/native-claude-client/discussions/3) for community feedback.
+###### See [Discussion: FOUNDATION Integration](https://github.com/continuity-bridge/Erebos/discussions/3) for community feedback.
 
-native-claude-client solves these developer-specific problems.
+Erebos solves these developer-specific problems.
 
 ---
 
@@ -118,7 +117,7 @@ native-claude-client solves these developer-specific problems.
 - Plugin architecture
 - Complete documentation
 
-See [Roadmap](https://github.com/continuity-bridge/native-claude-client/wiki/Roadmap) for detailed timeline.
+See [Roadmap](https://github.com/continuity-bridge/Erebos/wiki/Roadmap) for detailed timeline.
 
 ---
 
@@ -128,15 +127,15 @@ We're in the planning phase - perfect time to shape the project!
 
 **Active Discussions:**
 
-[Window Layout: Tabs vs Panes vs Hybrid?](https://github.com/continuity-bridge/native-claude-client/discussions/1)
+[Window Layout: Tabs vs Panes vs Hybrid?](https://github.com/continuity-bridge/Erebos/discussions/1)
 
-[What features would make this useful for your workflow?](https://github.com/continuity-bridge/native-claude-client/discussions/2)
+[What features would make this useful for your workflow?](https://github.com/continuity-bridge/Erebos/discussions/2)
 
-[Support loading FOUNDATION utilities and tools](https://github.com/continuity-bridge/native-claude-client/discussions/3)
+[Support loading FOUNDATION utilities and tools](https://github.com/continuity-bridge/Erebos/discussions/3)
 
 Ways to contribute:
 
-- Share your workflow pain points in [Discussions](https://github.com/continuity-bridge/native-claude-client/discussions)
+- Share your workflow pain points in [Discussions](https://github.com/continuity-bridge/Erebos/discussions)
 - Vote on design decisions
 - Review hook system architecture docs
 - Test on your distro when v0.1 releases
@@ -152,11 +151,11 @@ When v0.1 is ready:
 
 ```bash
 # Requirements: Python 3.11+, GTK4, Wayland
-pip install native-claude-client
-native-claude-client
+pip install Erebos
+Erebos
 ```
 
-For development setup, see [Wiki: Development Setup](https://github.com/continuity-bridge/native-claude-client/wiki/Development-Setup).
+For development setup, see [Wiki: Development Setup](https://github.com/continuity-bridge/Erebos/wiki/Development-Setup).
 
 ---
 
@@ -172,15 +171,15 @@ For development setup, see [Wiki: Development Setup](https://github.com/continui
 - Companies building proprietary products: Contact for commercial licensing
 - All code stays open source regardless
 
-See [Wiki: Design Decisions](https://github.com/continuity-bridge/native-claude-client/wiki/Design-Decisions#license-dual-licensing-gpl-30--commercial) for details on dual licensing.
+See [Wiki: Design Decisions](https://github.com/continuity-bridge/Erebos/wiki/Design-Decisions#license-dual-licensing-gpl-30--commercial) for details on dual licensing.
 
 ---
 
 ## Project Links
 
-- **Roadmap:** [Wiki: Roadmap](https://github.com/continuity-bridge/native-claude-client/wiki/Roadmap)
-- **Design Decisions:** [Wiki: Design Decisions](https://github.com/continuity-bridge/native-claude-client/wiki/Design-Decisions)
-- **Discussions:** [Community Forum](https://github.com/continuity-bridge/native-claude-client/discussions)
+- **Roadmap:** [Wiki: Roadmap](https://github.com/continuity-bridge/Erebos/wiki/Roadmap)
+- **Design Decisions:** [Wiki: Design Decisions](https://github.com/continuity-bridge/Erebos/wiki/Design-Decisions)
+- **Discussions:** [Community Forum](https://github.com/continuity-bridge/Erebos/discussions)
 - **Project Board:** [Development Progress](https://github.com/orgs/continuity-bridge/projects/2)
 - **Hook System Docs:** [docs/](docs/)
 

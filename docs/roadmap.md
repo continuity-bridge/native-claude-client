@@ -1,6 +1,6 @@
 # Roadmap
 
-See [Wiki: Roadmap](https://github.com/continuity-bridge/native-claude-client/wiki/Roadmap) for the full roadmap.
+See [Wiki: Roadmap](https://github.com/continuity-bridge/Erebos/wiki/Roadmap) for the full roadmap.
 
 This file will be updated as major milestones are reached.
 
