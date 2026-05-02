@@ -7,12 +7,14 @@
 ## What Was Built
 
 ### Event System Core (Phase 2)
+
 - **EventBus** - Pub/sub event routing (33 lines)
 - **EventEmitter** - Condition detection (109 lines, Python 3.13 datetime fixed)
 - **FailureTracker** - Intelligent failure monitoring (120 lines)
 - **OllamaClient** - Local LLM integration (119 lines)
 
 ### Professional Python Project
+
 - `pyproject.toml` - Modern project config with Black/pylint/mypy
 - `Makefile` - Development workflow (install, test, lint, format, run)
 - Test suite: 15/15 passing, 81% coverage
@@ -34,12 +36,14 @@ Tests:
 ## Key Capabilities
 
 **FailureTracker** monitors tool call patterns and emits `failure_threshold` events:
+
 - Tracks consecutive failures per tool family (Filesystem, Notion, ollama)
 - Success calls reset counters (prevents false positives)
 - Domain-specific thresholds (Professional=2, Default=3)
 - Velocity-based adjustment (rapid failures → lower threshold)
 
 **Example Event Flow:**
+
 ```
 Ollama call fails (nonexistent model)
   ↓
@@ -120,6 +124,7 @@ make lint    # Run all linters
 ## Token Consumption Observations
 
 **AppImage vs Debian .deb:**
+
 - AppImage: 13% wake, 46% after 4 turns
 - Debian .deb: Previously worse
 - **Conclusion:** Both show growth, client wrapper matters
@@ -128,17 +133,14 @@ make lint    # Run all linters
 ## Next Steps
 
 **Phase 2 completion:**
+
 1. ~~EventBus~~ ✓
 2. ~~EventEmitter~~ ✓
 3. ~~FailureTracker~~ ✓
 4. TokenMonitor - Track token percentages (60%, 80%, 85%, 90%)
 5. HookExecutor - Load hooks registry, execute on events
 
-**Phase 3+ (GTK4 UI):**
-6. Single conversation pane with status bar
-7. Live token display widget
-8. Basic diff viewer
-9. Session persistence via hooks
+**Phase 3+ (GTK4 UI):** 6. Single conversation pane with status bar 7. Live token display widget 8. Basic diff viewer 9. Session persistence via hooks
 
 ## Session Metrics
 
@@ -150,10 +152,10 @@ make lint    # Run all linters
 
 ---
 
-**Repository:** `/home/tallest/Scriptorium/Devel/UncleTallest/organizations/continuity-bridge/Erebos`  
-**GitHub:** https://github.com/continuity-bridge/Erebos  
+**Repository:** `/home/tallest/Scriptorium/Devel/UncleTallest/organizations/continuity-bridge/erebos`  
+**GitHub:** https://github.com/continuity-bridge/erebos  
 **Issue #6 (FailureTracker):** Complete ✓
 
 ---
 
-*Foundation validated with local Ollama models - ready for HookExecutor and GTK4 UI.*
+_Foundation validated with local Ollama models - ready for HookExecutor and GTK4 UI._
