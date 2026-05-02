@@ -1,391 +1,526 @@
-#!/usr/bin/env python3
 """
-Native Claude Client - Main Entry Point
-Testing CLI for network-local Ollama architecture
+erebos/main.py
+
+Erebos CLI — network-agnostic LLM harness.
+
+Routes requests to configured provider nodules. Currently supports
+Ollama (local and network). Cloud providers (Anthropic, Gemini) planned.
+
+Commands:
+    discover  — scan for Ollama instances (mDNS + threaded polling)
+    list      — show configured nodules with live status
+    run       — send a prompt to the best available nodule
+    add       — manually add a nodule
+    remove    — remove a nodule by index
+    config    — show or reset configuration
+
+Routing priority:
+    1. Lowest priority number wins
+    2. Must pass health_check() to be considered
+    3. --nodule flag overrides auto-selection
 """
 
 import argparse
+import logging
 import sys
-import json
-import socket
-from typing import List, Dict, Optional
 from pathlib import Path
+from typing import Optional
 
-try:
-    import ollama
-    from ollama import Client
-except ImportError:
-    print("⚠ ollama package not found. Install with: pip install ollama")
+from .discovery import (
+    NoduleConfig,
+    OllamaDiscovery,
+    discover_and_save,
+    DEFAULT_CONFIG_PATH,
+    DEFAULT_SUBNET,
+    DEFAULT_PORT,
+    MDNS_TIMEOUT,
+)
+from .providers.base import (
+    ProviderError,
+    ProviderConnectionError,
+    ProviderAuthError,
+    ProviderRateLimitError,
+    ProviderModelNotFoundError,
+    ProviderResponseError,
+    ProviderCapabilityError,
+)
+from .providers.ollama import OllamaClient
+
+logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Provider Client Factory
+# ---------------------------------------------------------------------------
+
+def _client_for_nodule(nodule: dict) -> OllamaClient:
+    """
+    Instantiate the correct provider client for a nodule config dict.
+
+    Currently only Ollama is implemented. Cloud providers will be
+    added here as they land in providers/.
+
+    Raises:
+        ValueError: Unknown provider type.
+    """
+    provider = nodule.get("provider", "ollama")
+
+    if provider == "ollama":
+        return OllamaClient(
+            base_url=nodule["url"],
+            label=nodule.get("label"),
+        )
+
+    # Future:
+    # if provider == "anthropic":
+    #     return ClaudeClient(api_key=os.environ[nodule["api_key_env"]])
+    # if provider == "google":
+    #     return GeminiClient(api_key=os.environ[nodule["api_key_env"]])
+
+    raise ValueError(
+        f"Unknown provider '{provider}' in nodule '{nodule.get('label')}'. "
+        f"Supported: ollama"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Routing
+# ---------------------------------------------------------------------------
+
+def _select_nodule(config: NoduleConfig,
+                   nodule_index: Optional[int] = None) -> tuple[dict, OllamaClient]:
+    """
+    Select a nodule and return it with its instantiated client.
+
+    If nodule_index given: use that specific nodule (1-based).
+    Otherwise: auto-select highest priority available nodule.
+
+    Raises:
+        SystemExit: No nodules configured, invalid index, or none reachable.
+    """
+    nodules = config.all(enabled_only=True)
+
+    if not nodules:
+        print("❌ No nodules configured. Run 'erebos discover' first.")
+        sys.exit(1)
+
+    if nodule_index is not None:
+        if nodule_index < 1 or nodule_index > len(nodules):
+            print(f"❌ Invalid nodule index: {nodule_index} "
+                  f"(have {len(nodules)} nodule(s))")
+            sys.exit(1)
+        nodule = nodules[nodule_index - 1]
+        client = _client_for_nodule(nodule)
+        status = client.health_check()
+        if not status.available:
+            print(f"❌ Nodule {nodule_index} ({nodule['label']}) is unreachable.")
+            print(f"   {status}")
+            sys.exit(1)
+        return nodule, client
+
+    # Auto-select: walk priority order, return first healthy
+    for nodule in nodules:
+        client = _client_for_nodule(nodule)
+        status = client.health_check()
+        if status.available:
+            return nodule, client
+        logger.debug(f"Skipping {nodule['label']}: {status}")
+
+    print("❌ No nodules are currently reachable.")
+    print("   Run 'erebos list' to see status.")
     sys.exit(1)
 
 
-class NetworkOllamaDiscovery:
-    """Discover Ollama instances on the local network"""
-    
-    DEFAULT_PORT = 11434
-    TIMEOUT = 2  # seconds
-    
-    @staticmethod
-    def scan_subnet(subnet: str = "192.168.12.0/24") -> List[Dict[str, str]]:
-        """
-        Scan subnet for Ollama instances
-        
-        Args:
-            subnet: CIDR notation (e.g., "192.168.12.0/24")
-        
-        Returns:
-            List of dicts with 'host', 'port', 'models'
-        """
-        import ipaddress
-        
-        network = ipaddress.ip_network(subnet, strict=False)
-        found_instances = []
-        
-        print(f"🔍 Scanning {subnet} for Ollama instances (port {NetworkOllamaDiscovery.DEFAULT_PORT})...")
-        
-        for ip in network.hosts():
-            host_str = str(ip)
-            if NetworkOllamaDiscovery._test_ollama_host(host_str):
-                found_instances.append({
-                    'host': host_str,
-                    'port': NetworkOllamaDiscovery.DEFAULT_PORT,
-                    'url': f"http://{host_str}:{NetworkOllamaDiscovery.DEFAULT_PORT}"
-                })
-                print(f"  ✓ Found Ollama at {host_str}")
-        
-        return found_instances
-    
-    @staticmethod
-    def _test_ollama_host(host: str, port: int = DEFAULT_PORT) -> bool:
-        """Test if a host is running Ollama"""
-        try:
-            # Try socket connection first (faster)
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(NetworkOllamaDiscovery.TIMEOUT)
-            result = sock.connect_ex((host, port))
-            sock.close()
-            
-            if result == 0:
-                # Verify it's actually Ollama by trying to list models
-                try:
-                    client = Client(host=f"http://{host}:{port}")
-                    client.list()
-                    return True
-                except Exception:
-                    return False
-            return False
-        except Exception:
-            return False
-    
-    @staticmethod
-    def get_models(host: str, port: int = DEFAULT_PORT) -> List[str]:
-        """Get list of models available on an Ollama instance"""
-        try:
-            client = Client(host=f"http://{host}:{port}")
-            models = client.list()
-            return [m['model'] for m in models.get('models', [])]
-        except Exception as e:
-            print(f"⚠ Could not fetch models from {host}: {e}")
-            return []
-
-
-class NetworkOllamaRouter:
-    """Route requests to network Ollama instances"""
-    
-    def __init__(self, config_path: Optional[Path] = None):
-        self.config_path = config_path or Path.home() / ".config" / "erebos" / "config.json"
-        self.nodules = []
-        self.load_config()
-    
-    def load_config(self):
-        """Load nodule configuration"""
-        if self.config_path.exists():
-            try:
-                with open(self.config_path, 'r') as f:
-                    config = json.load(f)
-                    self.nodules = config.get('nodules', [])
-                    print(f"✓ Loaded {len(self.nodules)} nodules from {self.config_path}")
-            except Exception as e:
-                print(f"⚠ Error loading config: {e}")
-        else:
-            print(f"ℹ No config found at {self.config_path}")
-            print(f"  Run 'erebos discover' to find Ollama instances")
-    
-    def save_config(self):
-        """Save nodule configuration"""
-        self.config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.config_path, 'w') as f:
-            json.dump({'nodules': self.nodules}, f, indent=2)
-        print(f"✓ Config saved to {self.config_path}")
-    
-    def add_nodule(self, host: str, port: int = 11434, label: Optional[str] = None, priority: int = 1):
-        """Add a nodule to the configuration"""
-        nodule = {
-            'host': host,
-            'port': port,
-            'url': f"http://{host}:{port}",
-            'label': label or f"Ollama @ {host}",
-            'priority': priority,
-            'type': 'ollama',
-            'location': 'network'
-        }
-        self.nodules.append(nodule)
-        print(f"✓ Added nodule: {nodule['label']}")
-    
-    def list_nodules(self):
-        """List configured nodules with status"""
-        if not self.nodules:
-            print("No nodules configured.")
-            return
-        
-        print("\n📡 Configured Nodules:")
-        print("-" * 80)
-        
-        for i, nodule in enumerate(self.nodules, 1):
-            status = "🟢" if self._test_nodule(nodule) else "🔴"
-            models = NetworkOllamaDiscovery.get_models(nodule['host'], nodule['port'])
-            model_count = len(models)
-            
-            print(f"{i}. {status} {nodule['label']}")
-            print(f"   URL: {nodule['url']}")
-            print(f"   Priority: {nodule['priority']} | Location: {nodule['location']}")
-            print(f"   Models: {model_count} available")
-            if models:
-                print(f"   → {', '.join(models[:3])}" + (f" (+{model_count-3} more)" if model_count > 3 else ""))
-            print()
-    
-    def _test_nodule(self, nodule: Dict) -> bool:
-        """Test if a nodule is reachable"""
-        return NetworkOllamaDiscovery._test_ollama_host(nodule['host'], nodule['port'])
-    
-    def run_request(self, prompt: str, model: str = "llama3.2", nodule_index: Optional[int] = None):
-        """
-        Run a request through the network routing system
-        
-        Args:
-            prompt: User prompt
-            model: Model name
-            nodule_index: Optional specific nodule to use (1-based index)
-        """
-        if not self.nodules:
-            print("❌ No nodules configured. Run 'discover' first.")
-            return
-        
-        # Select nodule
-        if nodule_index is not None:
-            if nodule_index < 1 or nodule_index > len(self.nodules):
-                print(f"❌ Invalid nodule index: {nodule_index}")
-                return
-            nodule = self.nodules[nodule_index - 1]
-        else:
-            # Auto-select by priority (lowest number = highest priority)
-            available = [n for n in self.nodules if self._test_nodule(n)]
-            if not available:
-                print("❌ No nodules are currently reachable")
-                return
-            nodule = min(available, key=lambda n: n['priority'])
-        
-        print(f"🚀 Routing to: {nodule['label']} ({nodule['url']})")
-        print(f"📝 Prompt: {prompt}")
-        print(f"🤖 Model: {model}")
-        print("-" * 80)
-        
-        try:
-            client = Client(host=nodule['url'])
-            
-            # Stream response
-            stream = client.chat(
-                model=model,
-                messages=[{'role': 'user', 'content': prompt}],
-                stream=True
-            )
-            
-            print("\n💬 Response:")
-            for chunk in stream:
-                if 'message' in chunk and 'content' in chunk['message']:
-                    print(chunk['message']['content'], end='', flush=True)
-            
-            print("\n" + "-" * 80)
-            print(f"✓ Request completed via {nodule['label']}")
-            
-        except Exception as e:
-            print(f"\n❌ Error: {e}")
-
+# ---------------------------------------------------------------------------
+# Command Handlers
+# ---------------------------------------------------------------------------
 
 def cmd_discover(args):
-    """Discover Ollama instances on the network"""
-    subnet = args.subnet or "192.168.12.0/24"
-    
-    instances = NetworkOllamaDiscovery.scan_subnet(subnet)
-    
-    if not instances:
-        print(f"\n❌ No Ollama instances found on {subnet}")
-        print("   Make sure Ollama is running on your Desktop/P71 and accessible on the network")
-        return
-    
-    print(f"\n✓ Found {len(instances)} Ollama instance(s)")
-    print("\nDiscovered instances:")
-    print("-" * 80)
-    
-    for i, instance in enumerate(instances, 1):
-        models = NetworkOllamaDiscovery.get_models(instance['host'])
-        print(f"{i}. {instance['url']}")
-        print(f"   Models: {len(models)} available")
-        if models:
-            print(f"   → {', '.join(models)}")
-        print()
-    
-    # Offer to add to config
+    """Discover Ollama instances via mDNS + threaded polling."""
+    subnet = args.subnet or DEFAULT_SUBNET
+    port = args.port or DEFAULT_PORT
+
+    print(f"🔍 Starting discovery on {subnet} (mDNS + polling)...")
+
     if args.save:
-        router = NetworkOllamaRouter()
-        for i, instance in enumerate(instances, 1):
-            label = f"Ollama-{instance['host'].split('.')[-1]}"
-            router.add_nodule(
-                host=instance['host'],
-                port=int(instance['port']),
-                label=label,
-                priority=i
-            )
-        router.save_config()
+        new, updated = discover_and_save(
+            subnet=subnet,
+            port=port,
+            config_path=Path(args.config) if args.config else DEFAULT_CONFIG_PATH,
+            mdns_timeout=MDNS_TIMEOUT,
+        )
+        all_found = new + updated
+
+        if not all_found:
+            print(f"\n❌ No Ollama instances found on {subnet}")
+            return
+
+        print(f"\n✓ Discovery complete: "
+              f"{len(new)} new, {len(updated)} updated\n")
+        _print_discovery_results(all_found, mark_new={n['url'] for n in new})
+
+    else:
+        # Dry run — discover but don't save
+        found = OllamaDiscovery.discover(subnet=subnet, port=port)
+
+        if not found:
+            print(f"\n❌ No Ollama instances found on {subnet}")
+            return
+
+        print(f"\n✓ Found {len(found)} instance(s) "
+              f"(use --save to add to config)\n")
+        _print_discovery_results(found)
 
 
-def cmd_add(args):
-    """Manually add a nodule"""
-    router = NetworkOllamaRouter()
-    router.add_nodule(
-        host=args.host,
-        port=args.port,
-        label=args.label,
-        priority=args.priority
-    )
-    router.save_config()
+def _print_discovery_results(nodules: list[dict],
+                              mark_new: Optional[set] = None):
+    """Print discovered nodules in a readable format."""
+    print("-" * 80)
+    for i, nodule in enumerate(nodules, 1):
+        is_new = mark_new and nodule["url"] in mark_new
+        tag = " [NEW]" if is_new else " [UPDATED]" if mark_new else ""
+        print(f"{i}. {nodule['label']}{tag}")
+        print(f"   URL:      {nodule['url']}")
+        if nodule.get("hostname"):
+            print(f"   Hostname: {nodule['hostname']}")
+        models = nodule.get("models", [])
+        print(f"   Models:   {len(models)} available")
+        if models:
+            preview = ", ".join(models[:3])
+            overflow = f" (+{len(models) - 3} more)" if len(models) > 3 else ""
+            print(f"   → {preview}{overflow}")
+        print()
 
 
 def cmd_list(args):
-    """List configured nodules"""
-    router = NetworkOllamaRouter()
-    router.list_nodules()
+    """List configured nodules with live health status."""
+    config = NoduleConfig(
+        Path(args.config) if args.config else DEFAULT_CONFIG_PATH
+    )
+    nodules = config.all()
+
+    if not nodules:
+        print("No nodules configured. Run 'erebos discover' to find instances.")
+        return
+
+    print(f"\n📡 Configured Nodules ({len(nodules)} total):")
+    print("-" * 80)
+
+    for i, nodule in enumerate(nodules, 1):
+        client = _client_for_nodule(nodule)
+        status = client.health_check()
+
+        indicator = "🟢" if status.available else "🔴"
+        enabled = "" if nodule.get("enabled", True) else " [DISABLED]"
+        latency = f" {status.latency_ms:.0f}ms" if status.latency_ms else ""
+
+        print(f"{i}. {indicator} {nodule['label']}{enabled}")
+        print(f"   URL:      {nodule['url']}")
+        if nodule.get("hostname"):
+            print(f"   Hostname: {nodule['hostname']}")
+        print(f"   Provider: {nodule['provider']} | "
+              f"Location: {nodule['location']} | "
+              f"Priority: {nodule['priority']}{latency}")
+
+        if status.available:
+            models = nodule.get("models", [])
+            print(f"   Models:   {len(models)} available")
+            if models:
+                preview = ", ".join(models[:3])
+                overflow = f" (+{len(models) - 3} more)" if len(models) > 3 else ""
+                print(f"   → {preview}{overflow}")
+        else:
+            print(f"   Status:   {status.error_message or 'unreachable'}")
+            if status.last_healthy:
+                print(f"   Last seen: {status.last_healthy.strftime('%Y-%m-%d %H:%M UTC')}")
+
+        print()
 
 
 def cmd_run(args):
-    """Run a test request"""
-    router = NetworkOllamaRouter()
-    router.run_request(
-        prompt=args.prompt,
-        model=args.model,
-        nodule_index=args.nodule
+    """Send a prompt to the best available nodule."""
+    config = NoduleConfig(
+        Path(args.config) if args.config else DEFAULT_CONFIG_PATH
     )
+
+    nodule, client = _select_nodule(config, nodule_index=args.nodule)
+
+    # Build message history — single turn for now,
+    # session persistence will extend this
+    messages = [{"role": "user", "content": args.prompt}]
+
+    print(f"🚀 Routing to: {nodule['label']} ({nodule['url']})")
+    print(f"🤖 Model: {args.model}")
+    print(f"📝 Prompt: {args.prompt}")
+    print("-" * 80)
+
+    try:
+        if args.stream:
+            print("\n💬 Response:")
+            for chunk in client.chat(
+                model=args.model,
+                messages=messages,
+                stream=True
+            ):
+                print(chunk, end="", flush=True)
+            print()
+        else:
+            response = client.chat(
+                model=args.model,
+                messages=messages,
+                stream=False
+            )
+            print(f"\n💬 Response:\n{response}")
+
+        print("-" * 80)
+        print(f"✓ Completed via {nodule['label']}")
+
+    except ProviderModelNotFoundError as e:
+        print(f"\n❌ Model not found: {e}")
+        print(f"   Available models on {nodule['label']}:")
+        for m in nodule.get("models", []):
+            print(f"   • {m}")
+        sys.exit(1)
+
+    except ProviderConnectionError as e:
+        print(f"\n❌ Connection failed: {e}")
+        print("   The nodule may have gone offline. Run 'erebos list' to check.")
+        sys.exit(1)
+
+    except ProviderRateLimitError as e:
+        print(f"\n❌ Rate limited: {e}")
+        if e.retry_after:
+            print(f"   Retry after {e.retry_after}s")
+        sys.exit(1)
+
+    except ProviderError as e:
+        print(f"\n❌ Provider error: {e}")
+        sys.exit(1)
+
+
+def cmd_add(args):
+    """Manually add a nodule."""
+    config = NoduleConfig(
+        Path(args.config) if args.config else DEFAULT_CONFIG_PATH
+    )
+
+    host = args.host
+    port = args.port or DEFAULT_PORT
+    url = f"http://{host}:{port}"
+
+    # Verify it's reachable before adding
+    client = OllamaClient(base_url=url)
+    status = client.health_check()
+
+    if not status.available:
+        print(f"⚠ Warning: {url} is not currently reachable.")
+        print(f"  {status.error_message}")
+        if not args.force:
+            print("  Use --force to add anyway.")
+            sys.exit(1)
+        models = []
+    else:
+        print(f"✓ Reachable ({status.latency_ms:.0f}ms)")
+        models = client.list_models()
+
+    # Resolve hostname
+    hostname = OllamaClient.resolve_hostname(host) if not args.label else None
+    label = args.label or (
+        f"Ollama-{hostname}" if hostname else f"Ollama-{host.split('.')[-1]}"
+    )
+
+    from .discovery import _build_nodule
+    nodule = _build_nodule(
+        host_ip=host,
+        port=port,
+        hostname=hostname,
+        models=models,
+        priority=args.priority or (len(config) + 1)
+    )
+    nodule["label"] = label
+
+    result, was_new = config.add_or_update(nodule)
+    config.save()
+
+    action = "Added" if was_new else "Updated"
+    print(f"✓ {action} nodule: {result['label']} ({url})")
+    if models:
+        print(f"  Models: {', '.join(models[:3])}"
+              + (f" (+{len(models)-3} more)" if len(models) > 3 else ""))
+
+
+def cmd_remove(args):
+    """Remove a nodule by index."""
+    config = NoduleConfig(
+        Path(args.config) if args.config else DEFAULT_CONFIG_PATH
+    )
+    nodules = config.all()
+
+    if not nodules:
+        print("No nodules configured.")
+        sys.exit(1)
+
+    if args.index < 1 or args.index > len(nodules):
+        print(f"❌ Invalid index: {args.index} (have {len(nodules)} nodule(s))")
+        sys.exit(1)
+
+    nodule = nodules[args.index - 1]
+
+    if not args.yes:
+        confirm = input(f"Remove '{nodule['label']}' ({nodule['url']})? [y/N] ")
+        if confirm.lower() != "y":
+            print("Cancelled.")
+            return
+
+    config.remove(nodule["url"])
+    config.save()
+    print(f"✓ Removed: {nodule['label']}")
 
 
 def cmd_config(args):
-    """Show or edit configuration"""
-    router = NetworkOllamaRouter()
-    
+    """Show or reset configuration."""
+    config_path = Path(args.config) if args.config else DEFAULT_CONFIG_PATH
+
     if args.show:
-        print(f"\n📄 Config file: {router.config_path}")
-        if router.config_path.exists():
-            with open(router.config_path, 'r') as f:
+        print(f"\n📄 Config: {config_path}")
+        if config_path.exists():
+            with open(config_path, "r") as f:
                 print(f.read())
         else:
             print("(No config file exists yet)")
-    
+
     if args.reset:
-        if router.config_path.exists():
-            router.config_path.unlink()
-            print(f"✓ Removed config file: {router.config_path}")
+        if config_path.exists():
+            if not args.yes:
+                confirm = input(f"Reset config at {config_path}? [y/N] ")
+                if confirm.lower() != "y":
+                    print("Cancelled.")
+                    return
+            config_path.unlink()
+            print(f"✓ Removed: {config_path}")
         else:
-            print("No config file to remove")
+            print("No config file to remove.")
+
+
+# ---------------------------------------------------------------------------
+# CLI Definition
+# ---------------------------------------------------------------------------
+
+def _add_common_args(parser):
+    """Add arguments shared across all subcommands."""
+    parser.add_argument(
+        "--config",
+        help=f"Path to config file (default: {DEFAULT_CONFIG_PATH})",
+        metavar="PATH"
+    )
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Enable debug logging"
+    )
 
 
 def main():
-    """Main entry point"""
     parser = argparse.ArgumentParser(
-        description="Erebos - Network Ollama Testing CLI",
+        prog="erebos",
+        description="Erebos — network-agnostic LLM harness",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Discover Ollama instances on default network (192.168.12.0/24)
   erebos discover --save
-  
-  # Discover on custom subnet
   erebos discover --subnet 192.168.1.0/24 --save
-  
-  # List configured nodules
   erebos list
-  
-  # Run a test request (auto-routes to best available nodule)
-  erebos run "What is 2+2?"
-  
-  # Run with specific model
-  erebos run "Explain Python" --model llama3.2:70b
-  
-  # Run on specific nodule
+  erebos run "What is 2+2?" --model llama3.1:8b
+  erebos run "Explain Python" --model llama3.1:8b --stream
   erebos run "Hello" --nodule 1
-  
-  # Manually add a nodule
-  erebos add 192.168.12.50 --label "Desktop" --priority 1
-  
-  # Show configuration
+  erebos add 192.168.12.50 --label "Desktop"
+  erebos remove 2
   erebos config --show
-  
-  # Reset configuration
   erebos config --reset
         """
     )
-    
-    subparsers = parser.add_subparsers(dest='command', help='Commands')
-    
-    # discover command
-    discover_parser = subparsers.add_parser('discover', help='Discover Ollama instances on network')
-    discover_parser.add_argument('--subnet', help='Subnet to scan (CIDR notation, e.g., 192.168.12.0/24)')
-    discover_parser.add_argument('--save', action='store_true', help='Save discovered instances to config')
-    discover_parser.set_defaults(func=cmd_discover)
-    
-    # add command
-    add_parser = subparsers.add_parser('add', help='Manually add a nodule')
-    add_parser.add_argument('host', help='Hostname or IP address')
-    add_parser.add_argument('--port', type=int, default=11434, help='Port (default: 11434)')
-    add_parser.add_argument('--label', help='Human-readable label')
-    add_parser.add_argument('--priority', type=int, default=1, help='Priority (lower = higher priority)')
-    add_parser.set_defaults(func=cmd_add)
-    
-    # list command
-    list_parser = subparsers.add_parser('list', help='List configured nodules')
-    list_parser.set_defaults(func=cmd_list)
-    
-    # run command
-    run_parser = subparsers.add_parser('run', help='Run a test request')
-    run_parser.add_argument('prompt', help='Prompt to send')
-    run_parser.add_argument('--model', default='llama3.2', help='Model to use (default: llama3.2)')
-    run_parser.add_argument('--nodule', type=int, help='Specific nodule index to use (1-based)')
-    run_parser.set_defaults(func=cmd_run)
-    
-    # config command
-    config_parser = subparsers.add_parser('config', help='Configuration management')
-    config_parser.add_argument('--show', action='store_true', help='Show current configuration')
-    config_parser.add_argument('--reset', action='store_true', help='Reset configuration')
-    config_parser.set_defaults(func=cmd_config)
-    
-    # Parse arguments
+
+    _add_common_args(parser)
+    subparsers = parser.add_subparsers(dest="command", help="Command")
+
+    # discover
+    p = subparsers.add_parser("discover", help="Discover Ollama instances")
+    p.add_argument("--subnet", help=f"CIDR subnet (default: {DEFAULT_SUBNET})")
+    p.add_argument("--port", type=int, help=f"Port (default: {DEFAULT_PORT})")
+    p.add_argument("--save", action="store_true", help="Save results to config")
+    _add_common_args(p)
+    p.set_defaults(func=cmd_discover)
+
+    # list
+    p = subparsers.add_parser("list", help="List configured nodules")
+    _add_common_args(p)
+    p.set_defaults(func=cmd_list)
+
+    # run
+    p = subparsers.add_parser("run", help="Send a prompt to a nodule")
+    p.add_argument("prompt", help="Prompt text")
+    p.add_argument("--model", default="llama3.2",
+                   help="Model identifier (default: llama3.2)")
+    p.add_argument("--nodule", type=int, metavar="N",
+                   help="Nodule index to use (default: auto)")
+    p.add_argument("--stream", action="store_true",
+                   help="Stream response chunks as they arrive")
+    _add_common_args(p)
+    p.set_defaults(func=cmd_run)
+
+    # add
+    p = subparsers.add_parser("add", help="Manually add a nodule")
+    p.add_argument("host", help="IP address or hostname")
+    p.add_argument("--port", type=int, help=f"Port (default: {DEFAULT_PORT})")
+    p.add_argument("--label", help="Display label")
+    p.add_argument("--priority", type=int, help="Priority (1=highest)")
+    p.add_argument("--force", action="store_true",
+                   help="Add even if unreachable")
+    _add_common_args(p)
+    p.set_defaults(func=cmd_add)
+
+    # remove
+    p = subparsers.add_parser("remove", help="Remove a nodule")
+    p.add_argument("index", type=int, help="Nodule index (from 'erebos list')")
+    p.add_argument("--yes", "-y", action="store_true",
+                   help="Skip confirmation prompt")
+    _add_common_args(p)
+    p.set_defaults(func=cmd_remove)
+
+    # config
+    p = subparsers.add_parser("config", help="Configuration management")
+    p.add_argument("--show", action="store_true", help="Print config file")
+    p.add_argument("--reset", action="store_true", help="Delete config file")
+    p.add_argument("--yes", "-y", action="store_true",
+                   help="Skip confirmation prompt")
+    _add_common_args(p)
+    p.set_defaults(func=cmd_config)
+
+    # Parse
     args = parser.parse_args()
-    
-    # Show help if no command specified
+
+    # Logging
+    level = logging.DEBUG if getattr(args, "verbose", False) else logging.WARNING
+    logging.basicConfig(
+        level=level,
+        format="%(levelname)s %(name)s: %(message)s"
+    )
+
     if not args.command:
         parser.print_help()
         sys.exit(0)
-    
-    # Execute command
+
     try:
         args.func(args)
     except KeyboardInterrupt:
-        print("\n\n⚠ Interrupted by user")
+        print("\n\n⚠ Interrupted.")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Error: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.debug("Unhandled exception", exc_info=True)
+        print(f"\n❌ Unexpected error: {e}")
+        print("   Run with --verbose for details.")
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

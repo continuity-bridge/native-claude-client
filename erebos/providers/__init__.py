@@ -1,6 +1,6 @@
-"""erebos - Network-agnostic LLM harness."""
+"""erebos provider clients and interfaces."""
 
-from .providers import (
+from .base import (
     ProviderClient,
     ProviderStatus,
     ProviderError,
@@ -10,11 +10,8 @@ from .providers import (
     ProviderModelNotFoundError,
     ProviderResponseError,
     ProviderCapabilityError,
-    OllamaClient,
 )
-from .discovery import NetworkOllamaDiscovery
-
-__version__ = "0.1.0-dev"
+from .ollama import OllamaClient
 
 __all__ = [
     "ProviderClient",
@@ -27,5 +24,4 @@ __all__ = [
     "ProviderResponseError",
     "ProviderCapabilityError",
     "OllamaClient",
-    "NetworkOllamaDiscovery",
 ]
