@@ -12,7 +12,7 @@ from .providers import (
     ProviderCapabilityError,
     OllamaClient,
 )
-from .discovery import NetworkOllamaDiscovery
+from .discovery import OllamaDiscovery
 
 __version__ = "0.1.0-dev"
 
@@ -27,5 +27,5 @@ __all__ = [
     "ProviderResponseError",
     "ProviderCapabilityError",
     "OllamaClient",
-    "NetworkOllamaDiscovery",
+    "OllamaDiscovery",
 ]

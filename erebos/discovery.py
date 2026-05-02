@@ -252,7 +252,7 @@ class MDNSDiscovery:
             Empty list if zeroconf unavailable or nothing found.
         """
         try:
-            from zeroconf import ServiceBrowser, Zeroconf
+            from zeroconf import ServiceBrowser, ServiceListener, Zeroconf
         except ImportError:
             logger.warning(
                 "zeroconf not installed — mDNS discovery unavailable. "
@@ -263,7 +263,7 @@ class MDNSDiscovery:
         found: dict[str, dict] = {}  # ip -> nodule, local dedup
         lock = threading.Lock()
 
-        class OllamaListener:
+        class OllamaListener(ServiceListener):
             def add_service(self, zc, type_, name):
                 info = zc.get_service_info(type_, name)
                 if not info:
@@ -280,6 +280,9 @@ class MDNSDiscovery:
 
                 # Normalize: resolve hostname to IP if we only got a name
                 if not host_ip:
+                    if not info.server:
+                        logger.warning(f"Could not resolve mDNS host: no hostname")
+                        return
                     resolved = _resolve_to_ip(info.server)
                     if not resolved:
                         logger.warning(f"Could not resolve mDNS host: {info.server}")
